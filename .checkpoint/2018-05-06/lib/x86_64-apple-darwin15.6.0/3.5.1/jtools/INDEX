@@ -1,0 +1,34 @@
+cat_plot                Plot interaction effects between categorical
+                        predictors.
+center_lm               Center variables in fitted regression models
+draw_key_vpath_h        ggplot2 extensions
+effect_plot             Plot simple effects in regression models
+export_summs            Export regression summaries to tables
+gscale                  Scale and/or center regression inputs,
+                        including from survey designs, by dividing by 2
+                        SD
+interact_plot           Plot interaction effects in regression models
+j_summ                  Regression summaries with options
+johnson_neyman          Calculate Johnson-Neyman intervals for 2-way
+                        interactions
+pf_sv_test              Test whether sampling weights are needed
+plot_summs              Plot Regression Summaries
+probe_interaction       Probe interaction effects via simple slopes and
+                        plotting
+scale_lm                Scale variables in fitted regression models
+sim_slopes              Perform a simple slopes analysis.
+summ                    Regression summaries with options
+summ.glm                Generalized linear regression summaries with
+                        options
+summ.lm                 Linear regression summaries with options
+summ.merMod             Mixed effects regression summaries with options
+summ.svyglm             Complex survey regression summaries with
+                        options
+svycor                  Calculate Pearson correlations with complex
+                        survey data
+svysd                   Calculate standard deviations with complex
+                        survey data
+theme_apa               Format ggplot2 figures in APA style
+tidy.summ               Broom extensions for summ objects
+weights_tests           Test whether sampling weights are needed
+wgttest                 Test whether sampling weights are needed

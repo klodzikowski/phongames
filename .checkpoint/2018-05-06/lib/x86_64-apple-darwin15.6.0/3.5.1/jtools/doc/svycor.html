@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Jacob Long" />
+
+<meta name="date" content="2018-02-13" />
+
+<title>Calculate correlations and correlation tables with complex survey data</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Calculate correlations and correlation tables with complex survey data</h1>
+<h4 class="author"><em>Jacob Long</em></h4>
+<h4 class="date"><em>2018-02-13</em></h4>
+
+
+
+<p>The <code>survey</code> package is one of R’s best tools for those working in the social sciences. For many, it saves you from needing to use commercial software for research that uses survey data. However, it lacks one function that many academic researchers often need to report in publications: correlations. The <code>svycor</code> function in <code>jtools</code> helps to fill that gap.</p>
+<p>A note, however, is necessary. The initial motivation to add this feature comes from a <a href="http://stackoverflow.com/questions/34418822/pearson-correlation-coefficient-in-rs-survey-package#41031088">response to a question</a> about calculating correlations with the <code>survey</code> package written by Thomas Lumley, the <code>survey</code> package author. All that is good about this function should be attributed to Dr. Lumley; all that is wrong with it should be attributed to me (Jacob).</p>
+<p>With that said, let’s look at an example. First, we need to get a <code>survey.design</code> object. This one is built into the <code>survey</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(survey)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">data</span>(api)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">dstrat &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">id =</span> <span class="op">~</span><span class="dv">1</span>,<span class="dt">strata =</span> <span class="op">~</span>stype, <span class="dt">weights =</span> <span class="op">~</span>pw, <span class="dt">data =</span> apistrat, <span class="dt">fpc=</span><span class="op">~</span>fpc)</a></code></pre></div>
+<section id="basic-use" class="level2">
+<h2>Basic use</h2>
+<p>The necessary arguments are no different than when using <code>svyvar</code>. Specify, using an equation, which variables (and from which design) to include. It doesn’t matter which side of the equation the variables are on.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">svycor</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat)</a></code></pre></div>
+<pre><code>##       api00 api99
+## api00  1.00  0.98
+## api99  0.98  1.00</code></pre>
+<p>You can specify with the <code>digits =</code> argument how many digits past the decimal point should be printed.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">svycor</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat, <span class="dt">digits =</span> <span class="dv">4</span>)</a></code></pre></div>
+<pre><code>##        api00  api99
+## api00 1.0000 0.9759
+## api99 0.9759 1.0000</code></pre>
+<p>Any other arguments that you would normally pass to <code>svyvar</code> will be used as well, though in some cases it may not affect the output.</p>
+</section>
+<section id="statistical-significance-tests" class="level2">
+<h2>Statistical significance tests</h2>
+<p>One thing that <code>survey</code> won’t do for you is give you <em>p</em> values for the null hypothesis that <span class="math inline">\(r = 0\)</span>. While at first blush finding the <em>p</em> value might seem like a simple procedure, complex surveys will almost always violate the important distributional assumptions that go along with simple hypothesis tests of the correlation coefficient. There is not a clear consensus on the appropriate way to conduct hypothesis tests in this context, due in part to the fact that most analyses of complex surveys occurs in the context of multiple regression rather than simple bivariate cases.</p>
+<p>If <code>sig.stats = TRUE</code>, then <code>svycor</code> will use the <code>wtd.cor</code> function from the <code>weights</code> package to conduct hypothesis tests. The <em>p</em> values are derived from a bootstrap procedure in which the weights define sampling probability. The <code>bootn =</code> argument is given to <code>wtd.cor</code> to define the number of simulations to run. This can significantly increase the running time for large samples and/or large numbers of simulations. The <code>mean1</code> argument tells <code>wtd.cor</code> whether it should treat your sample size as the number of observations in the survey design (the number of rows in the data frame) or the sum of the weights. Usually, the former is desired, so the default value of <code>mean1</code> is <code>TRUE</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">svycor</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat, <span class="dt">digits =</span> <span class="dv">4</span>, <span class="dt">sig.stats =</span> <span class="ot">TRUE</span>, <span class="dt">bootn =</span> <span class="dv">2000</span>, <span class="dt">mean1 =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<pre><code>##       api00   api99  
+## api00 1       0.9759*
+## api99 0.9759* 1</code></pre>
+<p>When using <code>sig.stats = TRUE</code>, the correlation parameter estimates come from the bootstrap procedure rather than the simpler method based on the survey-weighted covariance matrix when <code>sig.stats = FALSE</code>.</p>
+<p>By saving the output of the function, you can extract non-rounded coefficients, <em>p</em> values, and standard errors.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1">c &lt;-<span class="st"> </span><span class="kw">svycor</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat, <span class="dt">digits =</span> <span class="dv">4</span>, <span class="dt">sig.stats =</span> <span class="ot">TRUE</span>, <span class="dt">bootn =</span> <span class="dv">2000</span>, <span class="dt">mean1 =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">c<span class="op">$</span>cors</a></code></pre></div>
+<pre><code>##           api00     api99
+## api00 1.0000000 0.9759047
+## api99 0.9759047 1.0000000</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">c<span class="op">$</span>p.values</a></code></pre></div>
+<pre><code>##       api00 api99
+## api00     0     0
+## api99     0     0</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">c<span class="op">$</span>std.err</a></code></pre></div>
+<pre><code>##            api00      api99
+## api00 0.00000000 0.00365885
+## api99 0.00365885 0.00000000</code></pre>
+</section>
+<section id="technical-details" class="level2">
+<h2>Technical details</h2>
+<p>The heavy lifting behind the scenes is done by <code>svyvar</code>, which from its output you may not realize also calculates covariance.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">svyvar</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat)</a></code></pre></div>
+<pre><code>##       variance     SE
+## api00    15191 1255.7
+## api99    16518 1318.4</code></pre>
+<p>But if you save the <code>svyvar</code> object, you can see that there’s more than meets the eye.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">var &lt;-<span class="st"> </span><span class="kw">svyvar</span>(<span class="op">~</span>api00 <span class="op">+</span><span class="st"> </span>api99, <span class="dt">design =</span> dstrat)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">var &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(var)</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">var</a></code></pre></div>
+<pre><code>##          api00    api99
+## api00 15190.59 15458.83
+## api99 15458.83 16518.24
+## attr(,&quot;var&quot;)
+##         api00   api00   api99   api99
+## api00 1576883 1580654 1580654 1561998
+## api00 1580654 1630856 1630856 1657352
+## api99 1580654 1630856 1630856 1657352
+## api99 1561998 1657352 1657352 1738266
+## attr(,&quot;statistic&quot;)
+## [1] &quot;variance&quot;</code></pre>
+<p>Once we know that, it’s just a matter of using R’s <code>cov2cor</code> function and cleaning up the output.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">cor &lt;-<span class="st"> </span><span class="kw">cov2cor</span>(var)</a>
+<a class="sourceLine" id="cb18-2" data-line-number="2">cor</a></code></pre></div>
+<pre><code>##           api00     api99
+## api00 1.0000000 0.9759047
+## api99 0.9759047 1.0000000
+## attr(,&quot;var&quot;)
+##         api00   api00   api99   api99
+## api00 1576883 1580654 1580654 1561998
+## api00 1580654 1630856 1630856 1657352
+## api99 1580654 1630856 1630856 1657352
+## api99 1561998 1657352 1657352 1738266
+## attr(,&quot;statistic&quot;)
+## [1] &quot;variance&quot;</code></pre>
+<p>Now to get rid of that covariance matrix…</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">cor &lt;-<span class="st"> </span>cor[<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor), <span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(cor)]</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">cor</a></code></pre></div>
+<pre><code>##           api00     api99
+## api00 1.0000000 0.9759047
+## api99 0.9759047 1.0000000</code></pre>
+<p><code>svycor</code> has its own print method, so you won’t see so many digits past the decimal point. You can extract the un-rounded matrix, however.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">out &lt;-<span class="st"> </span><span class="kw">svycor</span>(<span class="op">~</span>api99 <span class="op">+</span><span class="st"> </span>api00, <span class="dt">design =</span> dstrat)</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">out<span class="op">$</span>cors</a></code></pre></div>
+<pre><code>##           api99     api00
+## api99 1.0000000 0.9759047
+## api00 0.9759047 1.0000000</code></pre>
+</section>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
