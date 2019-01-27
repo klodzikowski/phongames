@@ -463,7 +463,8 @@ ggplot(engagement_help_perc,
         scale_y_continuous(labels = scales::percent) +
         geom_col() +
         #theme(legend.position = "none") +
-        #scale_fill_brewer(type = "qual", palette = 6, direction = -1) +
+        # scale_fill_brewer(type = "qual", palette = 1, direction = -1) +
+        scale_fill_grey(start = 0.2, end = 0.6, aesthetics = "fill") +
         labs(
                 x = "Course topics in the first and second semester",
                 y = "\n\n\nPercentage of learners who agreed a given topic would \nhelp them in mastering their English pronunciation\n",
